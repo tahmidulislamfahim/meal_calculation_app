@@ -229,6 +229,56 @@ class MemberDashboardScreen extends StatelessWidget {
                 const SizedBox(height: 10),
                 if (personal != null)
                   _buildPersonalStatusCard(personal, summary?.mealRate ?? 0.0)
+                else if (authController.isSuperAdmin)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: AppColor.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColor.cardBorder),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColor.primary.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.admin_panel_settings_rounded,
+                            color: AppColor.primary,
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Super Admin Overview',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColor.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                'Managing roommate accounts, assigning managers, & monitoring mess calculations.',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 12,
+                                  color: AppColor.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                 else
                   Container(
                     padding: const EdgeInsets.all(16),
