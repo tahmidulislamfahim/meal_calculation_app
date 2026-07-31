@@ -11,6 +11,8 @@ import 'package:meal_calculation_app/features/super_admin/screens/create_user_sc
 import 'package:meal_calculation_app/features/manager/screens/manage_expenses_screen.dart';
 import 'package:meal_calculation_app/features/manager/screens/manage_deposits_screen.dart';
 
+import 'package:meal_calculation_app/features/super_admin/screens/manage_roommates_screen.dart';
+
 class AppRoutes {
   static const String splash = '/splash';
   static const String login = '/login';
@@ -21,6 +23,7 @@ class AppRoutes {
   static const String manageExpenses = '/manage-expenses';
   static const String manageDeposits = '/manage-deposits';
   static const String createUser = '/create-user';
+  static const String manageRoommates = '/manage-roommates';
   static const String assignManager = '/assign-manager';
 
   static final routes = [
@@ -66,6 +69,11 @@ class AppRoutes {
     GetPage(
       name: createUser,
       page: () => const CreateUserScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: manageRoommates,
+      page: () => const ManageRoommatesScreen(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

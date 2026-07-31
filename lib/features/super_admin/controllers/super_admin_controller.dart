@@ -87,4 +87,48 @@ class SuperAdminController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  Future<bool> deleteUser(int userId) async {
+    try {
+      isLoading.value = true;
+      await _apiClient.delete("${ApiEndpoint.users}/$userId");
+      Get.snackbar(
+        'User Deleted',
+        'Roommate account and all associated data deleted',
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+      await fetchUsers();
+      if (Get.isRegistered<SummaryController>()) {
+        Get.find<SummaryController>().fetchSummary();
+      }
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<bool> wipeDatabase() async {
+    try {
+      isLoading.value = true;
+      await _apiClient.delete("${ApiEndpoint.users}/wipe-database");
+      Get.snackbar(
+        'Database Wiped',
+        'All mess data and roommate accounts removed',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+      await fetchUsers();
+      if (Get.isRegistered<SummaryController>()) {
+        Get.find<SummaryController>().fetchSummary();
+      }
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
 }

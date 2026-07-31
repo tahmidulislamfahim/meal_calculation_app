@@ -355,6 +355,12 @@ class MemberDashboardScreen extends StatelessWidget {
                           onTap: () => Get.toNamed(AppRoutes.createUser),
                         ),
                         _buildActionButton(
+                          label: 'Manage Roommates',
+                          icon: Icons.people_alt_rounded,
+                          color: AppColor.refundGreen,
+                          onTap: () => Get.toNamed(AppRoutes.manageRoommates),
+                        ),
+                        _buildActionButton(
                           label: 'Assign Manager',
                           icon: Icons.admin_panel_settings_rounded,
                           color: Colors.purpleAccent,
