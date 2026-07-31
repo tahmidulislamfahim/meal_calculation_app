@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:meal_calculation_app/core/constants/app_color.dart';
+import 'package:meal_calculation_app/features/auth/controllers/auth_controller.dart';
 import 'package:meal_calculation_app/features/manager/controllers/manager_controller.dart';
 import 'package:meal_calculation_app/features/manager/models/deposit_model.dart';
 import 'package:meal_calculation_app/routes/app_routes.dart';
@@ -129,13 +130,18 @@ class ManageDepositsScreen extends StatelessWidget {
     final managerController = Get.isRegistered<ManagerController>()
         ? Get.find<ManagerController>()
         : Get.put(ManagerController());
+    final authController = Get.find<AuthController>();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      managerController.fetchDeposits();
+    });
     return Scaffold(
       backgroundColor: AppColor.background,
       appBar: AppBar(
         backgroundColor: AppColor.surface,
         elevation: 0,
         title: Text(
-          'Manage Member Deposits',
+          authController.isManager ? 'Manage Member Deposits' : 'Member Deposits Log',
           style: GoogleFonts.outfit(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -149,15 +155,20 @@ class ManageDepositsScreen extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Get.toNamed(AppRoutes.addDeposit),
-        backgroundColor: AppColor.secondary,
-        icon: const Icon(Icons.account_balance_wallet, color: Colors.black87),
-        label: Text(
-          'Add Deposit',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.black87),
-        ),
-      ),
+      floatingActionButton: authController.isManager
+          ? FloatingActionButton.extended(
+              onPressed: () => Get.toNamed(AppRoutes.addDeposit),
+              backgroundColor: AppColor.secondary,
+              icon: const Icon(Icons.account_balance_wallet, color: Colors.black87),
+              label: Text(
+                'Add Deposit',
+                style: GoogleFonts.outfit(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            )
+          : null,
       body: Obx(() {
         if (managerController.isLoading.value && managerController.depositsList.isEmpty) {
           return const Center(child: CircularProgressIndicator(color: AppColor.secondary));
@@ -193,7 +204,7 @@ class ManageDepositsScreen extends StatelessWidget {
                       color: AppColor.secondary.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.payments_outlined, color: AppColor.secondary),
+                    child: const Icon(Icons.account_balance_wallet_outlined, color: AppColor.secondary),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -227,15 +238,17 @@ class ManageDepositsScreen extends StatelessWidget {
                       color: AppColor.secondary,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.edit_rounded, color: AppColor.secondary, size: 20),
-                    onPressed: () => _showEditDialog(dep, managerController),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline_rounded, color: AppColor.dueRed, size: 20),
-                    onPressed: () => _confirmDelete(dep, managerController),
-                  ),
+                  if (authController.isManager) ...[
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.edit_rounded, color: AppColor.secondary, size: 20),
+                      onPressed: () => _showEditDialog(dep, managerController),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline_rounded, color: AppColor.dueRed, size: 20),
+                      onPressed: () => _confirmDelete(dep, managerController),
+                    ),
+                  ],
                 ],
               ),
             );

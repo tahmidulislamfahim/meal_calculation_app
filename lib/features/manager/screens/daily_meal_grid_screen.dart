@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:meal_calculation_app/core/constants/app_color.dart';
+import 'package:meal_calculation_app/features/auth/controllers/auth_controller.dart';
 import 'package:meal_calculation_app/features/manager/controllers/manager_controller.dart';
 
 class DailyMealGridScreen extends StatelessWidget {
@@ -11,6 +12,7 @@ class DailyMealGridScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final managerController = Get.put(ManagerController());
+    final authController = Get.find<AuthController>();
 
     return Scaffold(
       backgroundColor: AppColor.background,
@@ -18,7 +20,7 @@ class DailyMealGridScreen extends StatelessWidget {
         backgroundColor: AppColor.surface,
         elevation: 0,
         title: Text(
-          'Daily Meal Entry',
+          authController.isManager ? 'Daily Meal Grid' : 'Daily Meal Logs',
           style: GoogleFonts.outfit(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -180,6 +182,7 @@ class DailyMealGridScreen extends StatelessWidget {
                             Obx(
                               () => _buildCounter(
                                 value: entry.lunchCount.value,
+                                isEditable: authController.isManager,
                                 onIncrement: () => entry.lunchCount.value++,
                                 onDecrement: () {
                                   if (entry.lunchCount.value > 0) {
@@ -206,6 +209,7 @@ class DailyMealGridScreen extends StatelessWidget {
                             Obx(
                               () => _buildCounter(
                                 value: entry.dinnerCount.value,
+                                isEditable: authController.isManager,
                                 onIncrement: () => entry.dinnerCount.value++,
                                 onDecrement: () {
                                   if (entry.dinnerCount.value > 0) {
@@ -223,35 +227,36 @@ class DailyMealGridScreen extends StatelessWidget {
               ),
             ),
 
-            // Bottom Save Button
-            Container(
-              padding: const EdgeInsets.all(16),
-              color: AppColor.surface,
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton.icon(
-                  onPressed: managerController.isLoading.value
-                      ? null
-                      : () => managerController.saveDailyMeals(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColor.primary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+            // Bottom Save Button (Manager Only)
+            if (authController.isManager)
+              Container(
+                padding: const EdgeInsets.all(16),
+                color: AppColor.surface,
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton.icon(
+                    onPressed: managerController.isLoading.value
+                        ? null
+                        : () => managerController.saveDailyMeals(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColor.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                  ),
-                  icon: const Icon(Icons.save_rounded, color: Colors.white),
-                  label: Text(
-                    'SAVE ALL DAILY MEALS',
-                    style: GoogleFonts.outfit(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                    icon: const Icon(Icons.save_rounded, color: Colors.white),
+                    label: Text(
+                      'SAVE ALL DAILY MEALS',
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
           ],
         );
       }),
@@ -260,6 +265,7 @@ class DailyMealGridScreen extends StatelessWidget {
 
   Widget _buildCounter({
     required int value,
+    bool isEditable = true,
     required VoidCallback onIncrement,
     required VoidCallback onDecrement,
   }) {
@@ -271,19 +277,19 @@ class DailyMealGridScreen extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          InkWell(
-            onTap: onDecrement,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(8),
-              bottomLeft: Radius.circular(8),
+          if (isEditable)
+            InkWell(
+              onTap: onDecrement,
+              child: const Padding(
+                padding: EdgeInsets.all(6.0),
+                child: Icon(Icons.remove, size: 16, color: AppColor.textPrimary),
+              ),
             ),
-            child: const Padding(
-              padding: EdgeInsets.all(6.0),
-              child: Icon(Icons.remove, size: 16, color: AppColor.textPrimary),
-            ),
-          ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            padding: EdgeInsets.symmetric(
+              horizontal: isEditable ? 8.0 : 12.0,
+              vertical: isEditable ? 0.0 : 6.0,
+            ),
             child: Text(
               '$value',
               style: GoogleFonts.outfit(
@@ -293,17 +299,14 @@ class DailyMealGridScreen extends StatelessWidget {
               ),
             ),
           ),
-          InkWell(
-            onTap: onIncrement,
-            borderRadius: const BorderRadius.only(
-              topRight: Radius.circular(8),
-              bottomRight: Radius.circular(8),
+          if (isEditable)
+            InkWell(
+              onTap: onIncrement,
+              child: const Padding(
+                padding: EdgeInsets.all(6.0),
+                child: Icon(Icons.add, size: 16, color: AppColor.textPrimary),
+              ),
             ),
-            child: const Padding(
-              padding: EdgeInsets.all(6.0),
-              child: Icon(Icons.add, size: 16, color: AppColor.primary),
-            ),
-          ),
         ],
       ),
     );

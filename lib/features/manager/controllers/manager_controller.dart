@@ -113,13 +113,14 @@ class ManagerController extends GetxController {
     }
   }
 
-  Future<bool> addExpense(double amount, String description) async {
+  Future<bool> addExpense(double amount, String description, {DateTime? date}) async {
     try {
       isLoading.value = true;
+      final expDate = date ?? selectedDate.value;
       await _apiClient.post(ApiEndpoint.expenses, {
         'amount': amount,
         'description': description.trim(),
-        'date': DateFormat('yyyy-MM-dd').format(selectedDate.value),
+        'date': DateFormat('yyyy-MM-dd').format(expDate),
       });
 
       Get.snackbar('Success', 'Grocery expense added successfully', backgroundColor: Colors.green, colorText: Colors.white);

@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:meal_calculation_app/core/api_endpoint/api_endpoint.dart';
+import 'package:meal_calculation_app/core/services/local_service/preference_helper.dart';
 import 'package:meal_calculation_app/core/services/network_service/api_client.dart';
 import 'package:meal_calculation_app/features/auth/controllers/auth_controller.dart';
 import 'package:meal_calculation_app/features/summary/models/summary_model.dart';
@@ -18,6 +19,9 @@ class SummaryController extends GetxController {
 
   Future<void> fetchSummary() async {
     try {
+      final token = await PreferenceHelper.getToken();
+      if (token == null || token.isEmpty) return;
+
       isLoading.value = true;
       final res = await _apiClient.get(ApiEndpoint.summary);
       summaryData.value = MonthSummaryModel.fromJson(res);

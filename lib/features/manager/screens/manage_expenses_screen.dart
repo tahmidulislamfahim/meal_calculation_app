@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:meal_calculation_app/core/constants/app_color.dart';
+import 'package:meal_calculation_app/features/auth/controllers/auth_controller.dart';
 import 'package:meal_calculation_app/features/manager/controllers/manager_controller.dart';
 import 'package:meal_calculation_app/features/manager/models/expense_model.dart';
 import 'package:meal_calculation_app/routes/app_routes.dart';
@@ -119,6 +120,7 @@ class ManageExpensesScreen extends StatelessWidget {
     final managerController = Get.isRegistered<ManagerController>()
         ? Get.find<ManagerController>()
         : Get.put(ManagerController());
+    final authController = Get.find<AuthController>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       managerController.fetchExpenses();
@@ -130,7 +132,7 @@ class ManageExpensesScreen extends StatelessWidget {
         backgroundColor: AppColor.surface,
         elevation: 0,
         title: Text(
-          'Manage Grocery Expenses',
+          authController.isManager ? 'Manage Grocery Expenses' : 'Grocery Expenses Log',
           style: GoogleFonts.outfit(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -144,15 +146,20 @@ class ManageExpensesScreen extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Get.toNamed(AppRoutes.addExpense),
-        backgroundColor: AppColor.warningOrange,
-        icon: const Icon(Icons.add_shopping_cart, color: Colors.black87),
-        label: Text(
-          'Add Expense',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.black87),
-        ),
-      ),
+      floatingActionButton: authController.isManager
+          ? FloatingActionButton.extended(
+              onPressed: () => Get.toNamed(AppRoutes.addExpense),
+              backgroundColor: AppColor.warningOrange,
+              icon: const Icon(Icons.add_shopping_cart, color: Colors.black87),
+              label: Text(
+                'Add Expense',
+                style: GoogleFonts.outfit(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+            )
+          : null,
       body: Obx(() {
         if (managerController.isLoading.value && managerController.expensesList.isEmpty) {
           return const Center(child: CircularProgressIndicator(color: AppColor.warningOrange));
@@ -222,15 +229,17 @@ class ManageExpensesScreen extends StatelessWidget {
                       color: AppColor.warningOrange,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    icon: const Icon(Icons.edit_rounded, color: AppColor.secondary, size: 20),
-                    onPressed: () => _showEditDialog(exp, managerController),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline_rounded, color: AppColor.dueRed, size: 20),
-                    onPressed: () => _confirmDelete(exp, managerController),
-                  ),
+                  if (authController.isManager) ...[
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: const Icon(Icons.edit_rounded, color: AppColor.secondary, size: 20),
+                      onPressed: () => _showEditDialog(exp, managerController),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline_rounded, color: AppColor.dueRed, size: 20),
+                      onPressed: () => _confirmDelete(exp, managerController),
+                    ),
+                  ],
                 ],
               ),
             );

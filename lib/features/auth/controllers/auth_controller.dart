@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:meal_calculation_app/core/api_endpoint/api_endpoint.dart';
 import 'package:meal_calculation_app/core/services/local_service/preference_helper.dart';
@@ -74,6 +75,36 @@ class AuthController extends GetxController {
     currentUser.value = null;
     userRole.value = '';
     Get.offAllNamed(AppRoutes.login);
+  }
+
+  Future<bool> updateProfile({required String name, String? password}) async {
+    try {
+      isLoading.value = true;
+      final payload = <String, dynamic>{
+        'name': name.trim(),
+      };
+      if (password != null && password.trim().isNotEmpty) {
+        payload['password'] = password.trim();
+      }
+
+      final res = await _apiClient.put("${ApiEndpoint.users}/me", payload);
+      final updatedUser = UserModel.fromJson(res);
+
+      currentUser.value = updatedUser;
+      userRole.value = updatedUser.role;
+
+      Get.snackbar(
+        'Success',
+        'Profile updated successfully',
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+      );
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   bool get isSuperAdmin => userRole.value == 'SUPER_ADMIN';

@@ -83,8 +83,11 @@ class ApiClient extends GetxService {
       return decoded;
     } else if (response.statusCode == 401) {
       PreferenceHelper.clearSession();
-      Get.offAllNamed('/login');
-      _showErrorSnackbar('Unauthorized', 'Session expired. Please login again.');
+      final currentRoute = Get.currentRoute;
+      if (currentRoute != '/login' && currentRoute != '/splash') {
+        Get.offAllNamed('/login');
+        _showErrorSnackbar('Unauthorized', 'Session expired. Please login again.');
+      }
       throw Exception('Unauthorized');
     } else {
       String msg = 'An unexpected error occurred';
@@ -97,6 +100,8 @@ class ApiClient extends GetxService {
   }
 
   void _showErrorSnackbar(String title, String message) {
+    final route = Get.currentRoute;
+    if (route == '/login' || route == '/splash') return;
     if (Get.isSnackbarOpen) return;
     Get.snackbar(
       title,

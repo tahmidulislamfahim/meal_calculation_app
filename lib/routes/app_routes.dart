@@ -13,10 +13,13 @@ import 'package:meal_calculation_app/features/manager/screens/manage_deposits_sc
 
 import 'package:meal_calculation_app/features/super_admin/screens/manage_roommates_screen.dart';
 
+import 'package:meal_calculation_app/features/profile/screens/profile_screen.dart';
+
 class AppRoutes {
   static const String splash = '/splash';
   static const String login = '/login';
   static const String dashboard = '/dashboard';
+  static const String profile = '/profile';
   static const String dailyMealGrid = '/daily-meal-grid';
   static const String addExpense = '/add-expense';
   static const String addDeposit = '/add-deposit';
@@ -42,13 +45,18 @@ class AppRoutes {
       transition: Transition.rightToLeft,
     ),
     GetPage(
+      name: profile,
+      page: () => const ProfileScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
       name: dailyMealGrid,
       page: () => const DailyMealGridScreen(),
       transition: Transition.rightToLeft,
     ),
     GetPage(
       name: addExpense,
-      page: () => AddExpenseScreen(),
+      page: () => const AddExpenseScreen(),
       transition: Transition.rightToLeft,
     ),
     GetPage(

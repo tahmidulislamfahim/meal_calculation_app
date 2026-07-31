@@ -61,6 +61,10 @@ class MemberDashboardScreen extends StatelessWidget {
         }),
         actions: [
           IconButton(
+            icon: const Icon(Icons.person_outline_rounded, color: AppColor.textPrimary),
+            onPressed: () => Get.toNamed(AppRoutes.profile),
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh_rounded, color: AppColor.secondary),
             onPressed: () => summaryController.fetchSummary(),
           ),
@@ -367,6 +371,42 @@ class MemberDashboardScreen extends StatelessWidget {
                           onTap: () => Get.toNamed(AppRoutes.assignManager),
                         ),
                       ],
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ] else ...[
+                  // Read-Only Logs & Activity Bar for General Members
+                  Text(
+                    'Mess Logs & Activity',
+                    style: GoogleFonts.outfit(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColor.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      _buildActionButton(
+                        label: 'Daily Meal Logs',
+                        icon: Icons.grid_on_rounded,
+                        color: AppColor.primary,
+                        onTap: () => Get.toNamed(AppRoutes.dailyMealGrid),
+                      ),
+                      _buildActionButton(
+                        label: 'Grocery Expenses',
+                        icon: Icons.shopping_bag_outlined,
+                        color: AppColor.warningOrange,
+                        onTap: () => Get.toNamed(AppRoutes.manageExpenses),
+                      ),
+                      _buildActionButton(
+                        label: 'Member Deposits',
+                        icon: Icons.account_balance_rounded,
+                        color: AppColor.secondary,
+                        onTap: () => Get.toNamed(AppRoutes.manageDeposits),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),

@@ -1,15 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:meal_calculation_app/core/constants/app_color.dart';
 import 'package:meal_calculation_app/features/manager/controllers/manager_controller.dart';
 
-class AddExpenseScreen extends StatelessWidget {
-  AddExpenseScreen({super.key});
+class AddExpenseScreen extends StatefulWidget {
+  const AddExpenseScreen({super.key});
 
+  @override
+  State<AddExpenseScreen> createState() => _AddExpenseScreenState();
+}
+
+class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _descController = TextEditingController();
+  DateTime _selectedDate = DateTime.now();
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _descController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickDate(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: AppColor.warningOrange,
+              onPrimary: Colors.black,
+              surface: AppColor.surface,
+              onSurface: AppColor.textPrimary,
+            ),
+            dialogTheme: const DialogThemeData(backgroundColor: AppColor.surface),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,6 +126,61 @@ class AddExpenseScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 24),
+
+                // Expense Date Picker Field
+                Text(
+                  'Expense Date',
+                  style: GoogleFonts.outfit(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColor.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                InkWell(
+                  onTap: () => _pickDate(context),
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColor.surfaceLight,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_today_rounded,
+                              color: AppColor.warningOrange,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              DateFormat('yyyy-MM-dd (EEEE)').format(_selectedDate),
+                              style: GoogleFonts.outfit(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: AppColor.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Icon(
+                          Icons.arrow_drop_down,
+                          color: AppColor.textSecondary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Amount Field
                 Text(
                   'Amount (৳)',
                   style: GoogleFonts.outfit(
@@ -124,6 +221,8 @@ class AddExpenseScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 16),
+
+                // Description Field
                 Text(
                   'Description',
                   style: GoogleFonts.outfit(
@@ -159,6 +258,8 @@ class AddExpenseScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 28),
+
+                // Submit Button
                 Obx(
                   () => SizedBox(
                     height: 50,
@@ -171,7 +272,7 @@ class AddExpenseScreen extends StatelessWidget {
                                   _amountController.text.trim(),
                                 );
                                 final success = await managerController
-                                    .addExpense(amt, _descController.text);
+                                    .addExpense(amt, _descController.text, date: _selectedDate);
                                 if (success) {
                                   Get.back();
                                 }
