@@ -279,10 +279,22 @@ class MemberDashboardScreen extends StatelessWidget {
                           onTap: () => Get.toNamed(AppRoutes.addExpense),
                         ),
                         _buildActionButton(
+                          label: 'Manage Expenses',
+                          icon: Icons.edit_note_rounded,
+                          color: AppColor.warningOrange,
+                          onTap: () => Get.toNamed(AppRoutes.manageExpenses),
+                        ),
+                        _buildActionButton(
                           label: 'Add Deposit',
                           icon: Icons.account_balance_wallet_rounded,
                           color: AppColor.secondary,
                           onTap: () => Get.toNamed(AppRoutes.addDeposit),
+                        ),
+                        _buildActionButton(
+                          label: 'Manage Deposits',
+                          icon: Icons.account_balance_rounded,
+                          color: AppColor.secondary,
+                          onTap: () => Get.toNamed(AppRoutes.manageDeposits),
                         ),
                       ],
                       if (authController.isSuperAdmin) ...[

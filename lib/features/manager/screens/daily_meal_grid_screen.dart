@@ -182,8 +182,9 @@ class DailyMealGridScreen extends StatelessWidget {
                                 value: entry.lunchCount.value,
                                 onIncrement: () => entry.lunchCount.value++,
                                 onDecrement: () {
-                                  if (entry.lunchCount.value > 0)
+                                  if (entry.lunchCount.value > 0) {
                                     entry.lunchCount.value--;
+                                  }
                                 },
                               ),
                             ),
@@ -207,8 +208,9 @@ class DailyMealGridScreen extends StatelessWidget {
                                 value: entry.dinnerCount.value,
                                 onIncrement: () => entry.dinnerCount.value++,
                                 onDecrement: () {
-                                  if (entry.dinnerCount.value > 0)
+                                  if (entry.dinnerCount.value > 0) {
                                     entry.dinnerCount.value--;
+                                  }
                                 },
                               ),
                             ),

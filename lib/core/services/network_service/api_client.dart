@@ -42,6 +42,35 @@ class ApiClient extends GetxService {
     }
   }
 
+  Future<dynamic> put(String url, Map<String, dynamic> body) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.put(
+        Uri.parse(url),
+        headers: headers,
+        body: jsonEncode(body),
+      );
+      return _handleResponse(response);
+    } catch (e) {
+      _showErrorSnackbar('Connection Error', e.toString());
+      rethrow;
+    }
+  }
+
+  Future<dynamic> delete(String url) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: headers,
+      );
+      return _handleResponse(response);
+    } catch (e) {
+      _showErrorSnackbar('Connection Error', e.toString());
+      rethrow;
+    }
+  }
+
   dynamic _handleResponse(http.Response response) {
     dynamic decoded;
     try {

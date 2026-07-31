@@ -8,6 +8,9 @@ import 'package:meal_calculation_app/features/summary/screens/member_dashboard_s
 import 'package:meal_calculation_app/features/super_admin/screens/assign_manager_screen.dart';
 import 'package:meal_calculation_app/features/super_admin/screens/create_user_screen.dart';
 
+import 'package:meal_calculation_app/features/manager/screens/manage_expenses_screen.dart';
+import 'package:meal_calculation_app/features/manager/screens/manage_deposits_screen.dart';
+
 class AppRoutes {
   static const String splash = '/splash';
   static const String login = '/login';
@@ -15,6 +18,8 @@ class AppRoutes {
   static const String dailyMealGrid = '/daily-meal-grid';
   static const String addExpense = '/add-expense';
   static const String addDeposit = '/add-deposit';
+  static const String manageExpenses = '/manage-expenses';
+  static const String manageDeposits = '/manage-deposits';
   static const String createUser = '/create-user';
   static const String assignManager = '/assign-manager';
 
@@ -46,6 +51,16 @@ class AppRoutes {
     GetPage(
       name: addDeposit,
       page: () => const AddDepositScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: manageExpenses,
+      page: () => const ManageExpensesScreen(),
+      transition: Transition.rightToLeft,
+    ),
+    GetPage(
+      name: manageDeposits,
+      page: () => const ManageDepositsScreen(),
       transition: Transition.rightToLeft,
     ),
     GetPage(
