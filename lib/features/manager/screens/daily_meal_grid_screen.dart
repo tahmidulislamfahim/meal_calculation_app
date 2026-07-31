@@ -73,18 +73,31 @@ class DailyMealGridScreen extends StatelessWidget {
                   ),
                   TextButton.icon(
                     onPressed: () async {
+                      final now = DateTime.now();
+                      final firstDayOfMonth = DateTime(now.year, now.month, 1);
+                      final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+
+                      DateTime initialDate = managerController.selectedDate.value;
+                      if (initialDate.isBefore(firstDayOfMonth)) {
+                        initialDate = firstDayOfMonth;
+                      } else if (initialDate.isAfter(lastDayOfMonth)) {
+                        initialDate = lastDayOfMonth;
+                      }
+
                       final picked = await showDatePicker(
                         context: context,
-                        initialDate: managerController.selectedDate.value,
-                        firstDate: DateTime(2025),
-                        lastDate: DateTime(2030),
+                        initialDate: initialDate,
+                        firstDate: firstDayOfMonth,
+                        lastDate: lastDayOfMonth,
                         builder: (context, child) {
                           return Theme(
                             data: ThemeData.dark().copyWith(
                               colorScheme: const ColorScheme.dark(
                                 primary: AppColor.primary,
                                 surface: AppColor.surface,
+                                onSurface: AppColor.textPrimary,
                               ),
+                              dialogTheme: const DialogThemeData(backgroundColor: AppColor.surface),
                             ),
                             child: child!,
                           );
@@ -119,33 +132,37 @@ class DailyMealGridScreen extends StatelessWidget {
               child: Text(
                 'Tip: Include brother/guest meals directly into member count (e.g. Member 2 + Guest 1 = 3)',
                 style: GoogleFonts.outfit(
-                  fontSize: 11,
+                  fontSize: 12,
                   color: AppColor.textSecondary,
+                  fontStyle: FontStyle.italic,
                 ),
               ),
             ),
+            const SizedBox(height: 10),
 
-            // Meal Entry Cards List
+            // Meal Entries List
             Expanded(
               child: ListView.separated(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: managerController.mealEntries.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 12),
+                separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (context, index) {
                   final entry = managerController.mealEntries[index];
                   return Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColor.surface,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(14),
                       border: Border.all(color: AppColor.cardBorder),
                     ),
                     child: Row(
                       children: [
                         CircleAvatar(
-                          backgroundColor: AppColor.primary.withValues(
-                            alpha: 0.2,
-                          ),
+                          radius: 18,
+                          backgroundColor: AppColor.primary.withValues(alpha: 0.15),
                           child: Text(
                             entry.userName.isNotEmpty
                                 ? entry.userName[0].toUpperCase()
@@ -172,7 +189,7 @@ class DailyMealGridScreen extends StatelessWidget {
                         Column(
                           children: [
                             Text(
-                              'Lunch (1)',
+                              'Lunch',
                               style: GoogleFonts.outfit(
                                 fontSize: 11,
                                 color: AppColor.textSecondary,
@@ -199,7 +216,7 @@ class DailyMealGridScreen extends StatelessWidget {
                         Column(
                           children: [
                             Text(
-                              'Dinner (1)',
+                              'Dinner',
                               style: GoogleFonts.outfit(
                                 fontSize: 11,
                                 color: AppColor.textSecondary,

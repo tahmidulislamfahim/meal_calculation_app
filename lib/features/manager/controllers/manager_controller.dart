@@ -18,8 +18,8 @@ class UserMealEntry {
   UserMealEntry({
     required this.userId,
     required this.userName,
-    int lunch = 1,
-    int dinner = 1,
+    int lunch = 0,
+    int dinner = 0,
   })  : lunchCount = lunch.obs,
         dinnerCount = dinner.obs;
 }
@@ -56,8 +56,8 @@ class ManagerController extends GetxController {
       final Map<int, Map<String, int>> mealMap = {};
       for (var m in (mealsRes as List)) {
         mealMap[m['user_id']] = {
-          'lunch': m['lunch_count'] ?? 1,
-          'dinner': m['dinner_count'] ?? 1,
+          'lunch': m['lunch_count'] ?? 0,
+          'dinner': m['dinner_count'] ?? 0,
         };
       }
 
@@ -66,8 +66,8 @@ class ManagerController extends GetxController {
         return UserMealEntry(
           userId: user.id,
           userName: user.name,
-          lunch: existing != null ? existing['lunch']! : 1,
-          dinner: existing != null ? existing['dinner']! : 1,
+          lunch: existing != null ? existing['lunch']! : 0,
+          dinner: existing != null ? existing['dinner']! : 0,
         );
       }).toList();
 
