@@ -4,23 +4,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:meal_calculation_app/core/constants/app_color.dart';
 import 'package:meal_calculation_app/features/manager/controllers/manager_controller.dart';
 
-class AddDepositScreen extends StatefulWidget {
-  const AddDepositScreen({super.key});
+class AddDepositScreen extends StatelessWidget {
+  AddDepositScreen({super.key});
 
-  @override
-  State<AddDepositScreen> createState() => _AddDepositScreenState();
-}
-
-class _AddDepositScreenState extends State<AddDepositScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
-  int? _selectedUserId;
-
-  @override
-  void dispose() {
-    _amountController.dispose();
-    super.dispose();
-  }
+  final _selectedUserId = RxnInt();
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +95,7 @@ class _AddDepositScreenState extends State<AddDepositScreen> {
                 const SizedBox(height: 8),
                 Obx(() {
                   return DropdownButtonFormField<int>(
-                    initialValue: _selectedUserId,
+                    initialValue: _selectedUserId.value,
                     dropdownColor: AppColor.surface,
                     style: const TextStyle(color: AppColor.textPrimary),
                     decoration: InputDecoration(
@@ -130,9 +119,7 @@ class _AddDepositScreenState extends State<AddDepositScreen> {
                       );
                     }).toList(),
                     onChanged: (val) {
-                      setState(() {
-                        _selectedUserId = val;
-                      });
+                      _selectedUserId.value = val;
                     },
                     validator: (val) =>
                         val == null ? 'Please select a roommate' : null,
@@ -187,12 +174,12 @@ class _AddDepositScreenState extends State<AddDepositScreen> {
                           ? null
                           : () async {
                               if (_formKey.currentState!.validate() &&
-                                  _selectedUserId != null) {
+                                  _selectedUserId.value != null) {
                                 final amt = double.parse(
                                   _amountController.text.trim(),
                                 );
                                 final success = await managerController
-                                    .addDeposit(_selectedUserId!, amt);
+                                    .addDeposit(_selectedUserId.value!, amt);
                                 if (success) {
                                   Get.back();
                                 }

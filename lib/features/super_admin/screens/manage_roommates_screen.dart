@@ -6,28 +6,10 @@ import 'package:meal_calculation_app/features/auth/models/user_model.dart';
 import 'package:meal_calculation_app/features/super_admin/controllers/super_admin_controller.dart';
 import 'package:meal_calculation_app/routes/app_routes.dart';
 
-class ManageRoommatesScreen extends StatefulWidget {
+class ManageRoommatesScreen extends StatelessWidget {
   const ManageRoommatesScreen({super.key});
 
-  @override
-  State<ManageRoommatesScreen> createState() => _ManageRoommatesScreenState();
-}
-
-class _ManageRoommatesScreenState extends State<ManageRoommatesScreen> {
-  late final SuperAdminController adminController;
-
-  @override
-  void initState() {
-    super.initState();
-    adminController = Get.isRegistered<SuperAdminController>()
-        ? Get.find<SuperAdminController>()
-        : Get.put(SuperAdminController());
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      adminController.fetchUsers();
-    });
-  }
-
-  void _confirmDeleteUser(UserModel user) {
+  void _confirmDeleteUser(UserModel user, SuperAdminController adminController) {
     Get.dialog(
       AlertDialog(
         backgroundColor: AppColor.surface,
@@ -62,6 +44,9 @@ class _ManageRoommatesScreenState extends State<ManageRoommatesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final adminController = Get.isRegistered<SuperAdminController>()
+        ? Get.find<SuperAdminController>()
+        : Get.put(SuperAdminController());
     return Scaffold(
       backgroundColor: AppColor.background,
       appBar: AppBar(
@@ -156,7 +141,7 @@ class _ManageRoommatesScreenState extends State<ManageRoommatesScreen> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete_outline_rounded, color: AppColor.dueRed, size: 22),
-                    onPressed: () => _confirmDeleteUser(user),
+                    onPressed: () => _confirmDeleteUser(user, adminController),
                   ),
                 ],
               ),

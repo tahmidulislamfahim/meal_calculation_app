@@ -6,117 +6,95 @@ import 'package:meal_calculation_app/features/manager/controllers/manager_contro
 import 'package:meal_calculation_app/features/manager/models/deposit_model.dart';
 import 'package:meal_calculation_app/routes/app_routes.dart';
 
-class ManageDepositsScreen extends StatefulWidget {
+class ManageDepositsScreen extends StatelessWidget {
   const ManageDepositsScreen({super.key});
 
-  @override
-  State<ManageDepositsScreen> createState() => _ManageDepositsScreenState();
-}
-
-class _ManageDepositsScreenState extends State<ManageDepositsScreen> {
-  late final ManagerController managerController;
-
-  @override
-  void initState() {
-    super.initState();
-    managerController = Get.isRegistered<ManagerController>()
-        ? Get.find<ManagerController>()
-        : Get.put(ManagerController());
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      managerController.fetchDeposits();
-    });
-  }
-
-  void _showEditDialog(DepositModel dep) {
+  void _showEditDialog(DepositModel dep, ManagerController managerController) {
     final amountController = TextEditingController(text: dep.amount.toStringAsFixed(2));
-    int selectedUserId = dep.userId;
+    final selectedUserId = dep.userId.obs;
     final formKey = GlobalKey<FormState>();
 
     Get.dialog(
-      StatefulBuilder(
-        builder: (context, setStateDialog) {
-          return AlertDialog(
-            backgroundColor: AppColor.surface,
-            title: Text(
-              'Edit Deposit',
-              style: GoogleFonts.outfit(
-                fontWeight: FontWeight.bold,
-                color: AppColor.textPrimary,
-              ),
-            ),
-            content: Form(
-              key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DropdownButtonFormField<int>(
-                    initialValue: selectedUserId,
-                    dropdownColor: AppColor.surface,
-                    style: const TextStyle(color: AppColor.textPrimary),
-                    decoration: InputDecoration(
-                      labelText: 'Roommate',
-                      labelStyle: const TextStyle(color: AppColor.textSecondary),
-                      filled: true,
-                      fillColor: AppColor.surfaceLight,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    items: managerController.usersList.map((user) {
-                      return DropdownMenuItem<int>(
-                        value: user.id,
-                        child: Text(user.name),
-                      );
-                    }).toList(),
-                    onChanged: (val) {
-                      if (val != null) {
-                        setStateDialog(() {
-                          selectedUserId = val;
-                        });
-                      }
-                    },
+      AlertDialog(
+        backgroundColor: AppColor.surface,
+        title: Text(
+          'Edit Deposit',
+          style: GoogleFonts.outfit(
+            fontWeight: FontWeight.bold,
+            color: AppColor.textPrimary,
+          ),
+        ),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Obx(
+                () => DropdownButtonFormField<int>(
+                  initialValue: selectedUserId.value,
+                  dropdownColor: AppColor.surface,
+                  style: const TextStyle(color: AppColor.textPrimary),
+                  decoration: InputDecoration(
+                    labelText: 'Roommate',
+                    labelStyle: const TextStyle(color: AppColor.textSecondary),
+                    filled: true,
+                    fillColor: AppColor.surfaceLight,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: amountController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    style: const TextStyle(color: AppColor.textPrimary),
-                    decoration: InputDecoration(
-                      labelText: 'Deposit Amount (৳)',
-                      labelStyle: const TextStyle(color: AppColor.textSecondary),
-                      filled: true,
-                      fillColor: AppColor.surfaceLight,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    validator: (val) => (val == null || double.tryParse(val.trim()) == null)
-                        ? 'Enter valid amount'
-                        : null,
-                  ),
-                ],
+                  items: managerController.usersList.map((user) {
+                    return DropdownMenuItem<int>(
+                      value: user.id,
+                      child: Text(user.name),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      selectedUserId.value = val;
+                    }
+                  },
+                ),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Get.back(),
-                child: const Text('Cancel', style: TextStyle(color: AppColor.textSecondary)),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: AppColor.secondary),
-                onPressed: () async {
-                  if (formKey.currentState!.validate()) {
-                    final amt = double.parse(amountController.text.trim());
-                    Get.back();
-                    await managerController.updateDeposit(dep.id, selectedUserId, amt);
-                  }
-                },
-                child: const Text('Save', style: TextStyle(color: Colors.black)),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: amountController,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                style: const TextStyle(color: AppColor.textPrimary),
+                decoration: InputDecoration(
+                  labelText: 'Deposit Amount (৳)',
+                  labelStyle: const TextStyle(color: AppColor.textSecondary),
+                  filled: true,
+                  fillColor: AppColor.surfaceLight,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                validator: (val) => (val == null || double.tryParse(val.trim()) == null)
+                    ? 'Enter valid amount'
+                    : null,
               ),
             ],
-          );
-        },
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancel', style: TextStyle(color: AppColor.textSecondary)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColor.secondary),
+            onPressed: () async {
+              if (formKey.currentState!.validate()) {
+                final amt = double.parse(amountController.text.trim());
+                Get.back();
+                await managerController.updateDeposit(dep.id, selectedUserId.value, amt);
+              }
+            },
+            child: const Text('Save', style: TextStyle(color: Colors.black)),
+          ),
+        ],
       ),
     );
   }
 
-  void _confirmDelete(DepositModel dep) {
+  void _confirmDelete(DepositModel dep, ManagerController managerController) {
     Get.dialog(
       AlertDialog(
         backgroundColor: AppColor.surface,
@@ -148,6 +126,9 @@ class _ManageDepositsScreenState extends State<ManageDepositsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final managerController = Get.isRegistered<ManagerController>()
+        ? Get.find<ManagerController>()
+        : Get.put(ManagerController());
     return Scaffold(
       backgroundColor: AppColor.background,
       appBar: AppBar(
@@ -249,11 +230,11 @@ class _ManageDepositsScreenState extends State<ManageDepositsScreen> {
                   const SizedBox(width: 8),
                   IconButton(
                     icon: const Icon(Icons.edit_rounded, color: AppColor.secondary, size: 20),
-                    onPressed: () => _showEditDialog(dep),
+                    onPressed: () => _showEditDialog(dep, managerController),
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete_outline_rounded, color: AppColor.dueRed, size: 20),
-                    onPressed: () => _confirmDelete(dep),
+                    onPressed: () => _confirmDelete(dep, managerController),
                   ),
                 ],
               ),

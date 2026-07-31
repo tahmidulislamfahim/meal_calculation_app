@@ -4,31 +4,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:meal_calculation_app/core/constants/app_color.dart';
 import 'package:meal_calculation_app/features/super_admin/controllers/super_admin_controller.dart';
 
-class CreateUserScreen extends StatefulWidget {
-  const CreateUserScreen({super.key});
+class CreateUserScreen extends StatelessWidget {
+  CreateUserScreen({super.key});
 
-  @override
-  State<CreateUserScreen> createState() => _CreateUserScreenState();
-}
-
-class _CreateUserScreenState extends State<CreateUserScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  String _selectedRole = 'MEMBER';
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
+  final _selectedRole = 'MEMBER'.obs;
 
   @override
   Widget build(BuildContext context) {
-    final adminController = Get.put(SuperAdminController());
+    final adminController = Get.isRegistered<SuperAdminController>()
+        ? Get.find<SuperAdminController>()
+        : Get.put(SuperAdminController());
 
     return Scaffold(
       backgroundColor: AppColor.background,
@@ -201,35 +190,37 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  initialValue: _selectedRole,
-                  dropdownColor: AppColor.surface,
-                  style: const TextStyle(color: AppColor.textPrimary),
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: AppColor.surfaceLight,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
+                Obx(
+                  () => DropdownButtonFormField<String>(
+                    initialValue: _selectedRole.value,
+                    dropdownColor: AppColor.surface,
+                    style: const TextStyle(color: AppColor.textPrimary),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: AppColor.surfaceLight,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
+                    items: const [
+                      DropdownMenuItem(
+                        value: 'MEMBER',
+                        child: Text('MEMBER (General Roommate)'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'MANAGER',
+                        child: Text('MANAGER (Mess Manager)'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'SUPER_ADMIN',
+                        child: Text('SUPER_ADMIN (System Owner)'),
+                      ),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) _selectedRole.value = val;
+                    },
                   ),
-                  items: const [
-                    DropdownMenuItem(
-                      value: 'MEMBER',
-                      child: Text('MEMBER (General Roommate)'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'MANAGER',
-                      child: Text('MANAGER (Mess Manager)'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'SUPER_ADMIN',
-                      child: Text('SUPER_ADMIN (System Owner)'),
-                    ),
-                  ],
-                  onChanged: (val) {
-                    if (val != null) setState(() => _selectedRole = val);
-                  },
                 ),
                 const SizedBox(height: 28),
                 Obx(
@@ -245,7 +236,7 @@ class _CreateUserScreenState extends State<CreateUserScreen> {
                                       name: _nameController.text,
                                       email: _emailController.text,
                                       password: _passwordController.text,
-                                      role: _selectedRole,
+                                      role: _selectedRole.value,
                                     );
                                 if (success) Get.back();
                               }

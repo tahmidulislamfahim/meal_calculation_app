@@ -4,24 +4,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:meal_calculation_app/core/constants/app_color.dart';
 import 'package:meal_calculation_app/features/auth/controllers/auth_controller.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class LoginScreen extends StatelessWidget {
+  LoginScreen({super.key});
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
-}
-
-class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'admin@mess.com');
-  final _passwordController = TextEditingController(text: 'admin123');
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
+  final _emailController = TextEditingController(text: '');
+  final _passwordController = TextEditingController(text: '');
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +94,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               Icons.email_outlined,
                               color: AppColor.primary,
                             ),
-                            filled: true,
                             fillColor: AppColor.surfaceLight,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
@@ -143,7 +130,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               Icons.lock_outline,
                               color: AppColor.primary,
                             ),
-                            filled: true,
                             fillColor: AppColor.surfaceLight,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),

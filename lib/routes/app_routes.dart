@@ -33,7 +33,7 @@ class AppRoutes {
     ),
     GetPage(
       name: login,
-      page: () => const LoginScreen(),
+      page: () => LoginScreen(),
       transition: Transition.fadeIn,
     ),
     GetPage(
@@ -48,12 +48,12 @@ class AppRoutes {
     ),
     GetPage(
       name: addExpense,
-      page: () => const AddExpenseScreen(),
+      page: () => AddExpenseScreen(),
       transition: Transition.rightToLeft,
     ),
     GetPage(
       name: addDeposit,
-      page: () => const AddDepositScreen(),
+      page: () => AddDepositScreen(),
       transition: Transition.rightToLeft,
     ),
     GetPage(
@@ -68,7 +68,7 @@ class AppRoutes {
     ),
     GetPage(
       name: createUser,
-      page: () => const CreateUserScreen(),
+      page: () => CreateUserScreen(),
       transition: Transition.rightToLeft,
     ),
     GetPage(
@@ -78,7 +78,7 @@ class AppRoutes {
     ),
     GetPage(
       name: assignManager,
-      page: () => const AssignManagerScreen(),
+      page: () => AssignManagerScreen(),
       transition: Transition.rightToLeft,
     ),
   ];

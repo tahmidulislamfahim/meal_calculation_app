@@ -5,15 +5,10 @@ import 'package:intl/intl.dart';
 import 'package:meal_calculation_app/core/constants/app_color.dart';
 import 'package:meal_calculation_app/features/super_admin/controllers/super_admin_controller.dart';
 
-class AssignManagerScreen extends StatefulWidget {
-  const AssignManagerScreen({super.key});
+class AssignManagerScreen extends StatelessWidget {
+  AssignManagerScreen({super.key});
 
-  @override
-  State<AssignManagerScreen> createState() => _AssignManagerScreenState();
-}
-
-class _AssignManagerScreenState extends State<AssignManagerScreen> {
-  int? _selectedUserId;
+  final RxnInt selectedUserId = RxnInt();
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +102,7 @@ class _AssignManagerScreenState extends State<AssignManagerScreen> {
                 }
 
                 return DropdownButtonFormField<int>(
-                  initialValue: _selectedUserId,
+                  initialValue: selectedUserId.value,
                   dropdownColor: AppColor.surface,
                   style: const TextStyle(color: AppColor.textPrimary),
                   decoration: InputDecoration(
@@ -130,7 +125,7 @@ class _AssignManagerScreenState extends State<AssignManagerScreen> {
                       child: Text('${u.name} (${u.role})'),
                     );
                   }).toList(),
-                  onChanged: (val) => setState(() => _selectedUserId = val),
+                  onChanged: (val) => selectedUserId.value = val,
                 );
               }),
               const SizedBox(height: 28),
@@ -140,11 +135,11 @@ class _AssignManagerScreenState extends State<AssignManagerScreen> {
                   child: ElevatedButton(
                     onPressed:
                         (adminController.isLoading.value ||
-                            _selectedUserId == null)
+                            selectedUserId.value == null)
                         ? null
                         : () async {
                             final success = await adminController.assignManager(
-                              _selectedUserId!,
+                              selectedUserId.value!,
                             );
                             if (success) Get.back();
                           },

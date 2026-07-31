@@ -4,24 +4,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:meal_calculation_app/core/constants/app_color.dart';
 import 'package:meal_calculation_app/features/manager/controllers/manager_controller.dart';
 
-class AddExpenseScreen extends StatefulWidget {
-  const AddExpenseScreen({super.key});
+class AddExpenseScreen extends StatelessWidget {
+  AddExpenseScreen({super.key});
 
-  @override
-  State<AddExpenseScreen> createState() => _AddExpenseScreenState();
-}
-
-class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final _formKey = GlobalKey<FormState>();
   final _amountController = TextEditingController();
   final _descController = TextEditingController();
-
-  @override
-  void dispose() {
-    _amountController.dispose();
-    _descController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {

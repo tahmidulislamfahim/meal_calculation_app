@@ -6,28 +6,10 @@ import 'package:meal_calculation_app/features/manager/controllers/manager_contro
 import 'package:meal_calculation_app/features/manager/models/expense_model.dart';
 import 'package:meal_calculation_app/routes/app_routes.dart';
 
-class ManageExpensesScreen extends StatefulWidget {
+class ManageExpensesScreen extends StatelessWidget {
   const ManageExpensesScreen({super.key});
 
-  @override
-  State<ManageExpensesScreen> createState() => _ManageExpensesScreenState();
-}
-
-class _ManageExpensesScreenState extends State<ManageExpensesScreen> {
-  late final ManagerController managerController;
-
-  @override
-  void initState() {
-    super.initState();
-    managerController = Get.isRegistered<ManagerController>()
-        ? Get.find<ManagerController>()
-        : Get.put(ManagerController());
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      managerController.fetchExpenses();
-    });
-  }
-
-  void _showEditDialog(ExpenseModel exp) {
+  void _showEditDialog(ExpenseModel exp, ManagerController managerController) {
     final amountController = TextEditingController(text: exp.amount.toStringAsFixed(2));
     final descController = TextEditingController(text: exp.description);
     final formKey = GlobalKey<FormState>();
@@ -102,7 +84,7 @@ class _ManageExpensesScreenState extends State<ManageExpensesScreen> {
     );
   }
 
-  void _confirmDelete(ExpenseModel exp) {
+  void _confirmDelete(ExpenseModel exp, ManagerController managerController) {
     Get.dialog(
       AlertDialog(
         backgroundColor: AppColor.surface,
@@ -134,6 +116,14 @@ class _ManageExpensesScreenState extends State<ManageExpensesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final managerController = Get.isRegistered<ManagerController>()
+        ? Get.find<ManagerController>()
+        : Get.put(ManagerController());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      managerController.fetchExpenses();
+    });
+
     return Scaffold(
       backgroundColor: AppColor.background,
       appBar: AppBar(
@@ -235,11 +225,11 @@ class _ManageExpensesScreenState extends State<ManageExpensesScreen> {
                   const SizedBox(width: 8),
                   IconButton(
                     icon: const Icon(Icons.edit_rounded, color: AppColor.secondary, size: 20),
-                    onPressed: () => _showEditDialog(exp),
+                    onPressed: () => _showEditDialog(exp, managerController),
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete_outline_rounded, color: AppColor.dueRed, size: 20),
-                    onPressed: () => _confirmDelete(exp),
+                    onPressed: () => _confirmDelete(exp, managerController),
                   ),
                 ],
               ),
