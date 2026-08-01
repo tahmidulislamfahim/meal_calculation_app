@@ -15,10 +15,8 @@ class ApiEndpoint {
   static String notificationsUnreadCount =
       "$baseUrl/notifications/unread-count";
 
-  static String wsNotificationsUrl(String token) {
-    final wsBase = baseUrl
-        .replaceFirst('https://', 'wss://')
-        .replaceFirst('http://', 'ws://');
-    return "$wsBase/ws/notifications?token=$token";
+  static String get socketIoBaseUrl {
+    final uri = Uri.parse(baseUrl);
+    return "${uri.scheme}://${uri.host}${uri.hasPort ? ':${uri.port}' : ''}";
   }
 }

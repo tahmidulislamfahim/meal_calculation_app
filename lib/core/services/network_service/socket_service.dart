@@ -1,16 +1,13 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
+import 'package:socket_io_client/socket_io_client.dart' as socket_io;
 import 'package:meal_calculation_app/core/api_endpoint/api_endpoint.dart';
 import 'package:meal_calculation_app/core/services/local_service/preference_helper.dart';
 import 'package:meal_calculation_app/features/notification/controllers/notification_controller.dart';
 
 class SocketService extends GetxService {
-  WebSocket? _webSocket;
-  Timer? _reconnectTimer;
-  Timer? _pingTimer;
-  bool _isConnecting = false;
+  socket_io.Socket? _socket;
 
   @override
   void onInit() {
@@ -19,82 +16,71 @@ class SocketService extends GetxService {
   }
 
   Future<void> connectSocket() async {
-    if (_isConnecting) return;
-    _isConnecting = true;
-
     try {
       final token = await PreferenceHelper.getToken();
-      if (token == null || token.isEmpty) {
-        _isConnecting = false;
-        return;
+      if (token == null || token.isEmpty) return;
+
+      if (_socket != null) {
+        _socket!.dispose();
+        _socket = null;
       }
 
-      final url = ApiEndpoint.wsNotificationsUrl(token);
-      _webSocket?.close();
-      _pingTimer?.cancel();
-      _cancelReconnectTimer();
+      final url = ApiEndpoint.socketIoBaseUrl;
 
-      _webSocket = await WebSocket.connect(url);
-      _isConnecting = false;
+      _socket = socket_io.io(
+        url,
+        socket_io.OptionBuilder()
+            .setTransports(['websocket'])
+            .setPath('/socket.io')
+            .setAuth({'token': token})
+            .enableAutoConnect()
+            .enableReconnection()
+            .setReconnectionDelay(1000)
+            .build(),
+      );
 
-      // 1. Fetch notifications upon fresh connection
-      if (Get.isRegistered<NotificationController>()) {
-        Get.find<NotificationController>().fetchNotifications();
-      }
-
-      // 2. Start heartbeat ping every 25 seconds to prevent Cloud/Render timeouts
-      _pingTimer = Timer.periodic(const Duration(seconds: 25), (_) {
-        if (_webSocket != null && _webSocket!.readyState == WebSocket.open) {
-          _webSocket!.add('ping');
+      _socket!.onConnect((_) {
+        debugPrint('[Socket.IO Client] Connected to server successfully!');
+        if (Get.isRegistered<NotificationController>()) {
+          Get.find<NotificationController>().fetchNotifications();
         }
       });
 
-      // 3. Listen to incoming real-time notifications
-      _webSocket?.listen(
-        (message) {
-          if (message == 'pong') return;
-          try {
-            final data = jsonDecode(message);
-            if (data is Map<String, dynamic> && data['event'] == 'NOTIFICATION') {
-              if (Get.isRegistered<NotificationController>()) {
-                Get.find<NotificationController>().handleRealtimeEvent(data);
-              }
-            }
-          } catch (e) {
-            // Silently ignore parse errors
+      _socket!.on('new_notification', (data) {
+        debugPrint('[Socket.IO Client] Event new_notification: $data');
+        if (data is Map && Get.isRegistered<NotificationController>()) {
+          Get.find<NotificationController>().handleRealtimeEvent(Map<String, dynamic>.from(data));
+        }
+      });
+
+      _socket!.on('unread_count_updated', (data) {
+        debugPrint('[Socket.IO Client] Event unread_count_updated: $data');
+        if (data is Map && data.containsKey('unread_count')) {
+          final count = data['unread_count'] as int?;
+          if (count != null && Get.isRegistered<NotificationController>()) {
+            Get.find<NotificationController>().updateUnreadCount(count);
           }
-        },
-        onError: (error) {
-          _scheduleReconnect();
-        },
-        onDone: () {
-          _scheduleReconnect();
-        },
-      );
+        }
+      });
+
+      _socket!.onDisconnect((_) {
+        debugPrint('[Socket.IO Client] Disconnected from server.');
+      });
+
+      _socket!.onError((err) {
+        debugPrint('[Socket.IO Client] Socket error: $err');
+      });
+
+      _socket!.connect();
     } catch (e) {
-      _isConnecting = false;
-      _scheduleReconnect();
+      debugPrint('[Socket.IO Client] Exception during connectSocket: $e');
     }
   }
 
-  void _scheduleReconnect() {
-    _cancelReconnectTimer();
-    _pingTimer?.cancel();
-    _reconnectTimer = Timer(const Duration(seconds: 2), () {
-      connectSocket();
-    });
-  }
-
-  void _cancelReconnectTimer() {
-    _reconnectTimer?.cancel();
-    _reconnectTimer = null;
-  }
-
   void disconnect() {
-    _cancelReconnectTimer();
-    _pingTimer?.cancel();
-    _webSocket?.close();
-    _webSocket = null;
+    _socket?.disconnect();
+    _socket?.dispose();
+    _socket = null;
   }
 
   @override

@@ -76,26 +76,38 @@ class NotificationController extends GetxController {
     }
   }
 
+  void updateUnreadCount(int count) {
+    unreadCount.value = count;
+  }
+
   void handleRealtimeEvent(Map<String, dynamic> data) {
+    final notifId = data['id'] ?? DateTime.now().millisecondsSinceEpoch;
     final title = data['title'] ?? 'Notification';
     final message = data['message'] ?? '';
     final type = data['type'] ?? 'SYSTEM';
     final createdAtStr = data['created_at'];
     final createdAt = createdAtStr != null ? DateTime.parse(createdAtStr) : DateTime.now();
 
-    // 1. Instantly insert notification into local memory so badge & list update with 0ms delay!
-    final notif = NotificationModel(
-      id: DateTime.now().millisecondsSinceEpoch,
-      userId: 0,
-      title: title,
-      message: message,
-      type: type,
-      isRead: false,
-      createdAt: createdAt,
-    );
+    if (data.containsKey('unread_count') && data['unread_count'] != null) {
+      unreadCount.value = data['unread_count'] as int;
+    } else {
+      unreadCount.value++;
+    }
 
-    notificationsList.insert(0, notif);
-    unreadCount.value++;
+    // 1. Instantly insert notification into local memory if not already present
+    final existing = notificationsList.firstWhereOrNull((e) => e.id == notifId);
+    if (existing == null) {
+      final notif = NotificationModel(
+        id: notifId,
+        userId: data['user_id'] ?? 0,
+        title: title,
+        message: message,
+        type: type,
+        isRead: false,
+        createdAt: createdAt,
+      );
+      notificationsList.insert(0, notif);
+    }
 
     // 2. Refresh active data controllers so UI updates instantly!
     if (Get.isRegistered<SummaryController>()) {
