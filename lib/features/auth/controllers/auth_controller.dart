@@ -6,29 +6,41 @@ import 'package:meal_calculation_app/core/services/network_service/api_client.da
 import 'package:meal_calculation_app/features/auth/models/user_model.dart';
 import 'package:meal_calculation_app/routes/app_routes.dart';
 
+import 'package:meal_calculation_app/core/services/network_service/socket_service.dart';
+import 'package:meal_calculation_app/features/notification/controllers/notification_controller.dart';
+
 class AuthController extends GetxController {
-  final ApiClient _apiClient = Get.put(ApiClient());
+  final ApiClient _apiClient = Get.find<ApiClient>();
 
   final Rxn<UserModel> currentUser = Rxn<UserModel>();
+  final RxString userRole = 'MEMBER'.obs; // SUPER_ADMIN, MANAGER, MEMBER
   final RxBool isLoading = false.obs;
-  final RxString userRole = ''.obs;
+
+  bool get isLoggedIn => currentUser.value != null;
+  bool get isSuperAdmin => userRole.value == 'SUPER_ADMIN';
+  bool get isManager => userRole.value == 'MANAGER' || isSuperAdmin;
 
   @override
   void onInit() {
     super.onInit();
-    checkSession();
+    checkExistingSession();
   }
 
-  Future<void> checkSession() async {
+  Future<void> checkExistingSession() async {
     final token = await PreferenceHelper.getToken();
-    final role = await PreferenceHelper.getUserRole();
     if (token != null && token.isNotEmpty) {
-      userRole.value = role ?? 'MEMBER';
       try {
         final res = await _apiClient.get("${ApiEndpoint.users}/me");
-
         currentUser.value = UserModel.fromJson(res);
         userRole.value = currentUser.value?.role ?? 'MEMBER';
+
+        if (Get.isRegistered<SocketService>()) {
+          Get.find<SocketService>().connectSocket();
+        }
+        if (Get.isRegistered<NotificationController>()) {
+          Get.find<NotificationController>().fetchNotifications();
+        }
+
         Get.offAllNamed(AppRoutes.dashboard);
       } catch (e) {
         await PreferenceHelper.clearSession();
@@ -60,6 +72,13 @@ class AuthController extends GetxController {
 
       currentUser.value = user;
       userRole.value = user.role;
+
+      if (Get.isRegistered<SocketService>()) {
+        Get.find<SocketService>().connectSocket();
+      }
+      if (Get.isRegistered<NotificationController>()) {
+        Get.find<NotificationController>().fetchNotifications();
+      }
 
       Get.offAllNamed(AppRoutes.dashboard);
       return true;
@@ -106,7 +125,4 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
-
-  bool get isSuperAdmin => userRole.value == 'SUPER_ADMIN';
-  bool get isManager => userRole.value == 'MANAGER' || isSuperAdmin;
 }

@@ -26,11 +26,22 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   }
 
   Future<void> _pickDate(BuildContext context) async {
+    final now = DateTime.now();
+    final firstDayOfMonth = DateTime(now.year, now.month, 1);
+    final lastDayOfMonth = DateTime(now.year, now.month + 1, 0);
+
+    DateTime initialDate = _selectedDate;
+    if (initialDate.isBefore(firstDayOfMonth)) {
+      initialDate = firstDayOfMonth;
+    } else if (initialDate.isAfter(lastDayOfMonth)) {
+      initialDate = lastDayOfMonth;
+    }
+
     final picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
+      initialDate: initialDate,
+      firstDate: firstDayOfMonth,
+      lastDate: lastDayOfMonth,
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(

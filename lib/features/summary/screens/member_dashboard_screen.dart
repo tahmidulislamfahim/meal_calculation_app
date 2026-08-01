@@ -6,6 +6,8 @@ import 'package:meal_calculation_app/core/constants/app_color.dart';
 import 'package:meal_calculation_app/features/auth/controllers/auth_controller.dart';
 import 'package:meal_calculation_app/features/summary/controllers/summary_controller.dart';
 import 'package:meal_calculation_app/features/summary/models/summary_model.dart';
+import 'package:meal_calculation_app/features/notification/controllers/notification_controller.dart';
+import 'package:meal_calculation_app/features/notification/screens/notification_screen.dart';
 import 'package:meal_calculation_app/routes/app_routes.dart';
 
 class MemberDashboardScreen extends StatelessWidget {
@@ -60,6 +62,47 @@ class MemberDashboardScreen extends StatelessWidget {
           );
         }),
         actions: [
+          Obx(() {
+            final notifController = Get.isRegistered<NotificationController>()
+                ? Get.find<NotificationController>()
+                : Get.put(NotificationController());
+            final unread = notifController.unreadCount.value;
+
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.notifications_outlined, color: AppColor.textPrimary),
+                  onPressed: () => Get.to(() => const NotificationScreen()),
+                ),
+                if (unread > 0)
+                  Positioned(
+                    right: 6,
+                    top: 6,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: AppColor.warningOrange,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        unread > 99 ? '99+' : '$unread',
+                        style: GoogleFonts.outfit(
+                          fontSize: 9,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          }),
           IconButton(
             icon: const Icon(Icons.person_outline_rounded, color: AppColor.textPrimary),
             onPressed: () => Get.toNamed(AppRoutes.profile),
