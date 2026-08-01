@@ -9,6 +9,7 @@ import 'package:meal_calculation_app/features/notification/controllers/notificat
 class SocketService extends GetxService {
   WebSocket? _webSocket;
   Timer? _reconnectTimer;
+  Timer? _pingTimer;
   bool _isConnecting = false;
 
   @override
@@ -30,13 +31,28 @@ class SocketService extends GetxService {
 
       final url = ApiEndpoint.wsNotificationsUrl(token);
       _webSocket?.close();
-      _webSocket = await WebSocket.connect(url);
-
-      _isConnecting = false;
+      _pingTimer?.cancel();
       _cancelReconnectTimer();
 
+      _webSocket = await WebSocket.connect(url);
+      _isConnecting = false;
+
+      // 1. Fetch notifications upon fresh connection
+      if (Get.isRegistered<NotificationController>()) {
+        Get.find<NotificationController>().fetchNotifications();
+      }
+
+      // 2. Start heartbeat ping every 25 seconds to prevent Cloud/Render timeouts
+      _pingTimer = Timer.periodic(const Duration(seconds: 25), (_) {
+        if (_webSocket != null && _webSocket!.readyState == WebSocket.open) {
+          _webSocket!.add('ping');
+        }
+      });
+
+      // 3. Listen to incoming real-time notifications
       _webSocket?.listen(
         (message) {
+          if (message == 'pong') return;
           try {
             final data = jsonDecode(message);
             if (data is Map<String, dynamic> && data['event'] == 'NOTIFICATION') {
@@ -63,7 +79,8 @@ class SocketService extends GetxService {
 
   void _scheduleReconnect() {
     _cancelReconnectTimer();
-    _reconnectTimer = Timer(const Duration(seconds: 10), () {
+    _pingTimer?.cancel();
+    _reconnectTimer = Timer(const Duration(seconds: 2), () {
       connectSocket();
     });
   }
@@ -75,6 +92,7 @@ class SocketService extends GetxService {
 
   void disconnect() {
     _cancelReconnectTimer();
+    _pingTimer?.cancel();
     _webSocket?.close();
     _webSocket = null;
   }

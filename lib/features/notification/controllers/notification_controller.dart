@@ -80,8 +80,24 @@ class NotificationController extends GetxController {
     final title = data['title'] ?? 'Notification';
     final message = data['message'] ?? '';
     final type = data['type'] ?? 'SYSTEM';
+    final createdAtStr = data['created_at'];
+    final createdAt = createdAtStr != null ? DateTime.parse(createdAtStr) : DateTime.now();
 
-    // 1. Refresh active data controllers so UI updates instantly!
+    // 1. Instantly insert notification into local memory so badge & list update with 0ms delay!
+    final notif = NotificationModel(
+      id: DateTime.now().millisecondsSinceEpoch,
+      userId: 0,
+      title: title,
+      message: message,
+      type: type,
+      isRead: false,
+      createdAt: createdAt,
+    );
+
+    notificationsList.insert(0, notif);
+    unreadCount.value++;
+
+    // 2. Refresh active data controllers so UI updates instantly!
     if (Get.isRegistered<SummaryController>()) {
       Get.find<SummaryController>().fetchSummary();
     }
@@ -91,10 +107,7 @@ class NotificationController extends GetxController {
       Get.find<ManagerController>().fetchDeposits();
     }
 
-    // 2. Fetch fresh notifications from server
-    fetchNotifications();
-
-    // 3. Show instant, vibrant in-app banner/snackbar to alert the user
+    // 3. Show instant top banner snackbar
     Get.snackbar(
       title,
       message,
