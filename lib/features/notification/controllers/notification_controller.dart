@@ -82,6 +82,13 @@ class NotificationController extends GetxController {
 
   void handleRealtimeEvent(Map<String, dynamic> data) {
     final notifId = data['id'] ?? DateTime.now().millisecondsSinceEpoch;
+
+    // Deduplicate: If this notification ID was already processed, ignore duplicate events
+    final existing = notificationsList.firstWhereOrNull((e) => e.id == notifId);
+    if (existing != null) {
+      return;
+    }
+
     final title = data['title'] ?? 'Notification';
     final message = data['message'] ?? '';
     final type = data['type'] ?? 'SYSTEM';
@@ -94,21 +101,18 @@ class NotificationController extends GetxController {
       unreadCount.value++;
     }
 
-    // 1. Instantly insert notification into local memory if not already present
-    final existing = notificationsList.firstWhereOrNull((e) => e.id == notifId);
-    if (existing == null) {
-      final notif = NotificationModel(
-        id: notifId,
-        userId: data['user_id'] ?? 0,
-        title: title,
-        message: message,
-        type: type,
-        isRead: false,
-        createdAt: createdAt,
-      );
-      notificationsList.insert(0, notif);
-      notificationsList.refresh();
-    }
+    // 1. Instantly insert notification into local memory
+    final notif = NotificationModel(
+      id: notifId,
+      userId: data['user_id'] ?? 0,
+      title: title,
+      message: message,
+      type: type,
+      isRead: false,
+      createdAt: createdAt,
+    );
+    notificationsList.insert(0, notif);
+    notificationsList.refresh();
 
     // 2. Refresh active data controllers so UI updates instantly!
     if (Get.isRegistered<SummaryController>()) {

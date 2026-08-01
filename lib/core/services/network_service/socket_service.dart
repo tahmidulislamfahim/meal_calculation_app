@@ -18,20 +18,29 @@ class SocketService extends GetxService {
   Future<void> connectSocket() async {
     try {
       final token = await PreferenceHelper.getToken();
-      if (token == null || token.isEmpty) return;
+      if (token == null || token.isEmpty) {
+        debugPrint('[Socket.IO Client] Cannot connect: No token in SharedPreferences');
+        return;
+      }
+
+      if (_socket != null && _socket!.connected) {
+        debugPrint('[Socket.IO Client] Socket is already connected!');
+        return;
+      }
 
       if (_socket != null) {
+        _socket!.disconnect();
         _socket!.dispose();
         _socket = null;
       }
 
       final url = ApiEndpoint.socketIoBaseUrl;
+      debugPrint('[Socket.IO Client] Connecting Socket.IO client to: $url');
 
       _socket = socket_io.io(
         url,
         socket_io.OptionBuilder()
             .setTransports(['websocket', 'polling'])
-            .setPath('/socket.io/')
             .setQuery({'token': token})
             .setAuth({'token': token})
             .enableAutoConnect()
@@ -64,12 +73,16 @@ class SocketService extends GetxService {
         }
       });
 
-      _socket!.onDisconnect((_) {
-        debugPrint('[Socket.IO Client] Disconnected from server.');
+      _socket!.onDisconnect((reason) {
+        debugPrint('[Socket.IO Client] Disconnected from server. Reason: $reason');
       });
 
       _socket!.onError((err) {
         debugPrint('[Socket.IO Client] Socket error: $err');
+      });
+
+      _socket!.onConnectError((err) {
+        debugPrint('[Socket.IO Client] Connect error: $err');
       });
 
       _socket!.connect();
