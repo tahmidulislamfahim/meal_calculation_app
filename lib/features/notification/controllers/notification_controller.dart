@@ -107,6 +107,7 @@ class NotificationController extends GetxController {
         createdAt: createdAt,
       );
       notificationsList.insert(0, notif);
+      notificationsList.refresh();
     }
 
     // 2. Refresh active data controllers so UI updates instantly!

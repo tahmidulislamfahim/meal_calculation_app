@@ -44,6 +44,11 @@ class NotificationScreen extends StatelessWidget {
         ? Get.find<NotificationController>()
         : Get.put(NotificationController());
 
+    // Fetch fresh notifications via GetX controller upon screen build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifController.fetchNotifications();
+    });
+
     return Scaffold(
       backgroundColor: AppColor.background,
       appBar: AppBar(
@@ -90,46 +95,53 @@ class NotificationScreen extends StatelessWidget {
           }
 
           if (notifController.notificationsList.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: AppColor.surfaceLight,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.notifications_none_rounded,
-                      size: 48,
-                      color: AppColor.textSecondary,
-                    ),
+            return SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height * 0.75,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: const BoxDecoration(
+                          color: AppColor.surfaceLight,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.notifications_none_rounded,
+                          size: 48,
+                          color: AppColor.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No Notifications Yet',
+                        style: GoogleFonts.outfit(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColor.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Real-time updates on expenses, deposits & meals will appear here',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.outfit(
+                          fontSize: 13,
+                          color: AppColor.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No Notifications Yet',
-                    style: GoogleFonts.outfit(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColor.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Real-time updates on expenses, deposits & meals will appear here',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
-                      fontSize: 13,
-                      color: AppColor.textSecondary,
-                    ),
-                  ),
-                ],
+                ),
               ),
             );
           }
 
           return ListView.separated(
+            physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.all(16),
             itemCount: notifController.notificationsList.length,
             separatorBuilder: (_, _) => const SizedBox(height: 10),

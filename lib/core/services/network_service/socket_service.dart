@@ -30,8 +30,9 @@ class SocketService extends GetxService {
       _socket = socket_io.io(
         url,
         socket_io.OptionBuilder()
-            .setTransports(['websocket'])
-            .setPath('/socket.io')
+            .setTransports(['websocket', 'polling'])
+            .setPath('/socket.io/')
+            .setQuery({'token': token})
             .setAuth({'token': token})
             .enableAutoConnect()
             .enableReconnection()
