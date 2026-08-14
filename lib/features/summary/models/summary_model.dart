@@ -32,6 +32,8 @@ class MonthSummaryModel {
   final int month;
   final String managerName;
   final double totalExpenses;
+  final double totalDeposits;
+  final double cashInHand;
   final int totalMeals;
   final double mealRate;
   final List<MemberSummaryModel> memberSummaries;
@@ -41,6 +43,8 @@ class MonthSummaryModel {
     required this.month,
     required this.managerName,
     required this.totalExpenses,
+    required this.totalDeposits,
+    required this.cashInHand,
     required this.totalMeals,
     required this.mealRate,
     required this.memberSummaries,
@@ -51,9 +55,11 @@ class MonthSummaryModel {
       year: json['year'] as int,
       month: json['month'] as int,
       managerName: json['manager_name'] as String? ?? 'N/A',
-      totalExpenses: (json['total_expenses'] as num).toDouble(),
-      totalMeals: json['total_meals'] as int,
-      mealRate: (json['meal_rate'] as num).toDouble(),
+      totalExpenses: (json['total_expenses'] as num?)?.toDouble() ?? 0.0,
+      totalDeposits: (json['total_deposits'] as num?)?.toDouble() ?? 0.0,
+      cashInHand: (json['cash_in_hand'] as num?)?.toDouble() ?? 0.0,
+      totalMeals: json['total_meals'] as int? ?? 0,
+      mealRate: (json['meal_rate'] as num?)?.toDouble() ?? 0.0,
       memberSummaries: (json['member_summaries'] as List<dynamic>?)
               ?.map((e) => MemberSummaryModel.fromJson(e as Map<String, dynamic>))
               .toList() ??

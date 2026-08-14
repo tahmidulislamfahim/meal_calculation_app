@@ -1,6 +1,6 @@
 class ApiEndpoint {
   static String baseUrl =
-      'https://mess-manager-backend-dz5y.onrender.com/api/v1';
+      'https://mess-manager-backend-odcc.onrender.com/api/v1';
 
   static String login = "$baseUrl/auth/login";
   static String users = "$baseUrl/users";

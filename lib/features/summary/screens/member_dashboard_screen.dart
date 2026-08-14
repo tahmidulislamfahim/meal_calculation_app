@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -220,7 +220,7 @@ class MemberDashboardScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // Live Metrics Banner
+                                                // Live Metrics Banner
                 Text(
                   'Live Mess Metrics',
                   style: GoogleFonts.outfit(
@@ -228,6 +228,32 @@ class MemberDashboardScreen extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     color: AppColor.textPrimary,
                   ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildMetricCard(
+                        title: 'Cash in Hand',
+                        value:
+                            '৳${(summary?.cashInHand ?? 0.0).toStringAsFixed(2)}',
+                        icon: Icons.account_balance_wallet_outlined,
+                        accentColor: (summary?.cashInHand ?? 0.0) >= 0
+                            ? AppColor.refundGreen
+                            : AppColor.dueRed,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _buildMetricCard(
+                        title: 'Total Deposits',
+                        value:
+                            '৳${(summary?.totalDeposits ?? 0.0).toStringAsFixed(0)}',
+                        icon: Icons.payments_outlined,
+                        accentColor: AppColor.secondary,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 10),
                 Row(
